@@ -1,69 +1,59 @@
-import type { ISSCoordinates } from "@/api/iss";
 import getISSCoordinates from "@/api/iss";
 import { useQuery } from "@tanstack/react-query";
-import { Image } from "expo-image";
+import { Asset } from "expo-asset";
+import * as FileSystem from "expo-file-system/legacy";
 import { useEffect, useState } from "react";
-import {
-  Button,
-  PixelRatio,
-  StyleSheet,
-  Text,
-  View,
-  useWindowDimensions,
-} from "react-native";
-
-const GEOAPIFY_API_KEY = process.env.EXPO_PUBLIC_GEOAPIFY_API_KEY;
+import { ActivityIndicator, Alert } from "react-native";
+import { LeafletView } from "react-native-leaflet-view";
 
 export default function ISSMap() {
-  const { width } = useWindowDimensions();
-  const pixelRatio = PixelRatio.get();
-  const [zoom, setZoom] = useState(1);
-  const [debounceZoom, setDebounceZoom] = useState(zoom);
-  const mapWidth = Math.round(width * pixelRatio);
-  const mapHeight = Math.round(mapWidth * 0.66);
-
-  useEffect(() => {
-    const timeOut = setTimeout(() => setDebounceZoom(zoom), 400);
-    return () => clearTimeout(timeOut);
-  }, [zoom]);
-
-  const { data, isPending, isError } = useQuery<ISSCoordinates>({
+  const { data, isPending, isError } = useQuery({
     queryKey: ["coordinates"],
     queryFn: getISSCoordinates,
     refetchInterval: 5000,
   });
 
-  if (isPending) {
-    return <Text>Loading ISS location...</Text>;
+  const [webViewContent, setWebViewContent] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadHtml = async () => {
+      try {
+        const path = require("../../assets/leaflet.html");
+        const asset = Asset.fromModule(path);
+        await asset.downloadAsync();
+        const htmlContent = await FileSystem.readAsStringAsync(asset.localUri!);
+
+        if (isMounted) {
+          setWebViewContent(htmlContent);
+        }
+      } catch (error) {
+        Alert.alert("Error loading HTML", JSON.stringify(error));
+        console.error("Error loading HTML:", error);
+      }
+    };
+
+    loadHtml();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  if (isPending) return null;
+  if (isError) return null;
+  if (!webViewContent) {
+    return <ActivityIndicator size="large" />;
   }
-
-  if (isError) {
-    return <Text>Could not get ISS location at this time...</Text>;
-  }
-
-  const lon = Number(data.iss_position.longitude);
-  const lat = Number(data.iss_position.latitude);
-
-  const mapUrl = `https://maps.geoapify.com/v1/staticmap?style=dark-matter-dark-grey&width=${mapWidth}&height=${mapHeight}&attribution=none&scaleFactor=1&center=lonlat:${lon},${lat}&zoom=${debounceZoom}&marker=lonlat:${lon},${lat};type:circle;icon:satellite;icontype:awesome;contentcolor:%2300d9ff;size:large&apiKey=${GEOAPIFY_API_KEY}`;
 
   return (
-    <View style={styles.container}>
-      <Image source={{ uri: mapUrl }} style={styles.map} contentFit="cover" />
-      <View>
-        <Button
-          title="+"
-          onPress={() => setZoom((z: number) => Math.min(z + 0.5, 20))}
-        />
-        <Button
-          title="-"
-          onPress={() => setZoom((z: number) => Math.max(z - 0.5, 0))}
-        />
-      </View>
-    </View>
+    <LeafletView
+      source={{ html: webViewContent }}
+      mapCenterPosition={{
+        lat: data.iss_position.latitude,
+        lng: data.iss_position.longitude,
+      }}
+    />
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, width: "100%" },
-  map: { flex: 1, width: "100%" },
-});
