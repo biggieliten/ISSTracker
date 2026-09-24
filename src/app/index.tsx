@@ -1,85 +1,39 @@
-import * as Device from "expo-device";
-import { Platform, StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Astronaut, getAstronautsInSpaceNow } from "@/api/astronauts";
+import AstronautRow from "@/components/astronaut-row";
+import { useQuery } from "@tanstack/react-query";
+import { StyleSheet, Text } from "react-native";
 
-import { ThemedText } from "@/components/themed-text";
-import { ThemedView } from "@/components/themed-view";
-import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
-
-function getDevMenuHint() {
-  if (Platform.OS === "web") {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === "android" ? "cmd+m (or ctrl+m)" : "cmd+d";
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+import { ScrollView, View } from "react-native";
 
 export default function HomeScreen() {
+  const { data, isPending } = useQuery({
+    queryKey: ["astronauts"],
+    queryFn: getAstronautsInSpaceNow,
+  });
+
+  //   console.log(data);
   return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
-
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
-
-        <ThemedView
-          type="backgroundElement"
-          style={styles.stepContainer}
-        ></ThemedView>
-      </SafeAreaView>
-    </ThemedView>
+    <>
+      <ScrollView contentContainerStyle={s.root}>
+        {isPending && (
+          <View style={s.pending}>
+            <Text>Loading astronauts...</Text>
+          </View>
+        )}
+        {data?.results.map((astronaut: Astronaut) => (
+          <AstronautRow astronaut={astronaut} />
+        ))}
+      </ScrollView>
+    </>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
+const s = StyleSheet.create({
+  root: {
     flex: 1,
-    justifyContent: "center",
-    flexDirection: "row",
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
+    // justifyContent: "center",
     alignItems: "center",
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
+    backgroundColor: "white",
   },
-  heroSection: {
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
-  title: {
-    textAlign: "center",
-  },
-  code: {
-    textTransform: "uppercase",
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: "stretch",
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
-  },
+  pending: { color: "red", marginTop: 20 },
 });
