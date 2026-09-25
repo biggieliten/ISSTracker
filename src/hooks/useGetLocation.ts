@@ -1,48 +1,45 @@
 import * as Location from "expo-location";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-export function useGetLocation() {
+export function useGetDeviceLocation() {
   const [location, setLocation] =
     useState<Location.LocationObjectCoords | null>(null);
 
-  async function WatchLocation() {
-    let { status } = await Location.requestForegroundPermissionsAsync();
+  useEffect(() => {
+    let positionSubscription: Location.LocationSubscription;
 
-    if (status != "granted") {
-      return;
+    async function WatchLocation() {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+
+      if (status != "granted") {
+        return;
+      }
+
+      positionSubscription = await Location.watchPositionAsync(
+        {
+          //   timeInterval: 2,
+          distanceInterval: 1,
+          accuracy: Location.Accuracy.Balanced,
+        },
+        (location: Location.LocationObject) => {
+          (setLocation(location.coords),
+            console.log(
+              "lat:",
+              location.coords.latitude,
+              "lon:",
+              location.coords.longitude,
+              "CURRENT LOCATION",
+            ));
+        },
+      );
     }
 
-    const positionSubscription = await Location.watchPositionAsync(
-      {
-        timeInterval: 2,
-        distanceInterval: 1,
-        accuracy: Location.Accuracy.Balanced,
-      },
-      (location: Location.LocationObject) => {
-        (setLocation(location.coords),
-          console.log(
-            "lat:",
-            location.coords.latitude,
-            "lon:",
-            location.coords.longitude,
-            "CURRENT LOCATION",
-          ));
-      },
-    );
+    WatchLocation();
 
-    return positionSubscription;
-  }
+    return () => {
+      positionSubscription.remove();
+    };
+  }, []);
 
-  async function RequestLocation() {
-    let { status } = await Location.requestForegroundPermissionsAsync();
-
-    if (status != "granted") {
-      return;
-    }
-
-    const location = await Location.getCurrentPositionAsync({});
-    // setLocation(location);
-  }
-
-  return { RequestLocation, WatchLocation, location };
+  return { location };
 }

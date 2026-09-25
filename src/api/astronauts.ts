@@ -4,15 +4,15 @@ export type Astronaut = {
   status: { name: string };
   agency: { name: string; addbrev: string };
   image: { image_url: string; thumbnail_url: string };
-  date_of_birth: string;
+  date_of_birth: string | null;
   nationality: { name: string; alpha_3_code: string }[];
-  bio: string;
-  wiki: string;
-  last_flight: string;
-  first_flight: string;
+  bio: string | null;
+  wiki: string | null;
+  last_flight: string | null;
+  first_flight: string | null;
 };
 
-type AstronautResponse = {
+export type AstronautResponse = {
   count: number;
   next: string | null;
   previous: string | null;

@@ -1,6 +1,10 @@
 import getISSCoordinates from "@/api/iss";
-import { SATELLITE_SVG, USER_SVG } from "@/assets/map-markers";
-import { useGetLocation } from "@/hooks/useGetLocation";
+import {
+  DARK_SATELLITE_SVG,
+  LIGHT_SATELLITE_SVG,
+  USER_SVG,
+} from "@/assets/map-markers";
+import { useGetDeviceLocation } from "@/hooks/useGetLocation";
 import { useQuery } from "@tanstack/react-query";
 import { Asset } from "expo-asset";
 import * as FileSystem from "expo-file-system/legacy";
@@ -13,7 +17,24 @@ import {
   Text,
   View,
 } from "react-native";
-import { LeafletView, MapMarker } from "react-native-leaflet-view";
+import {
+  LeafletView,
+  MapLayerType,
+  MapMarker,
+} from "react-native-leaflet-view";
+
+const MapLayers = {
+  dark: {
+    layerType: MapLayerType.TILE_LAYER,
+    url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=cb1_3xop_1_c901e44bfd7051cbb3a68d84",
+    attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
+  },
+  light: {
+    layerType: MapLayerType.TILE_LAYER,
+    url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=cb1_3xop_1_c901e44bfd7051cbb3a68d84",
+    attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
+  },
+};
 
 export default function ISSMap() {
   const { data, isPending, isError } = useQuery({
@@ -24,22 +45,19 @@ export default function ISSMap() {
 
   if (isError) return null;
 
-  const { WatchLocation, RequestLocation, location } = useGetLocation();
+  const { location } = useGetDeviceLocation();
 
   const [webViewContent, setWebViewContent] = useState<string | null>(null);
   const [zoom, setZoom] = useState(5);
   const [followISS, setFollowISS] = useState(true);
-
-  useEffect(() => {
-    WatchLocation();
-  }, [WatchLocation]);
+  const [isDarkMap, setIsDarkMap] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
 
     const loadHtml = async () => {
       try {
-        const path = require("../../assets/leaflet.html");
+        const path = require("../../../assets/leaflet.html");
         const asset = Asset.fromModule(path);
         await asset.downloadAsync();
         const htmlContent = await FileSystem.readAsStringAsync(asset.localUri!);
@@ -80,7 +98,7 @@ export default function ISSMap() {
 
   const mapMarkers: MapMarker[] = [
     {
-      icon: SATELLITE_SVG,
+      icon: isDarkMap ? DARK_SATELLITE_SVG : LIGHT_SATELLITE_SVG,
       position: [data.iss_position.latitude, data.iss_position.longitude],
     },
   ];
@@ -94,19 +112,31 @@ export default function ISSMap() {
 
   return (
     <View style={s.root}>
-      <View style={s.followIssSwitch}>
-        <Text style={s.switchLabel}>Follow ISS</Text>
-        <Switch
-          value={followISS}
-          onValueChange={setFollowISS}
-          trackColor={{ false: "#CBD5E1", true: "#93C5FD" }}
-          thumbColor={followISS ? "#2563EB" : "#F8FAFC"}
-        />
+      <View style={s.settings}>
+        <View style={s.switch}>
+          <Text style={s.switchLabel}>Follow ISS</Text>
+          <Switch
+            value={followISS}
+            onValueChange={setFollowISS}
+            trackColor={{ false: "#CBD5E1", true: "#93C5FD" }}
+            thumbColor={followISS ? "#2563EB" : "#F8FAFC"}
+          />
+        </View>
+        <View style={s.switch}>
+          <Text style={s.switchLabel}>Dark Map</Text>
+          <Switch
+            value={isDarkMap}
+            onValueChange={setIsDarkMap}
+            trackColor={{ false: "#CBD5E1", true: "#93C5FD" }}
+            thumbColor={followISS ? "#2563EB" : "#F8FAFC"}
+          />
+        </View>
       </View>
       <LeafletView
         doDebug={false}
         source={{ html: webViewContent }}
         mapMarkers={mapMarkers}
+        mapLayers={isDarkMap ? [MapLayers.dark] : [MapLayers.light]}
         mapCenterPosition={
           followISS
             ? {
@@ -131,7 +161,7 @@ const s = StyleSheet.create({
     // position: "relative",
     flexDirection: "row",
   },
-  followIssSwitch: {
+  settings: {
     position: "absolute",
     bottom: 24,
     right: 20,
@@ -139,15 +169,14 @@ const s = StyleSheet.create({
     elevation: 8,
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
-    paddingLeft: 14,
-    paddingRight: 8,
-    height: 48,
+    gap: 5,
+    padding: 10,
     backgroundColor: "#FFFFFF",
     borderWidth: 1,
     borderColor: "#E2E8F0",
     borderRadius: 24,
   },
+  switch: { flexDirection: "row", alignItems: "center" },
 
   switchLabel: {
     fontSize: 14,
