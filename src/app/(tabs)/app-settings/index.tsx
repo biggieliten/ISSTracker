@@ -1,5 +1,5 @@
 import { ScrollView } from "react-native";
 
-export default function TabTwoScreen() {
+export default function Settings() {
   return <ScrollView></ScrollView>;
 }

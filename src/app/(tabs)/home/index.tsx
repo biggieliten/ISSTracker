@@ -14,35 +14,31 @@ export default function HomeScreen() {
   //   });
 
   return (
-    <>
-      <ScrollView contentContainerStyle={s.root}>
-        {/*
-		
-		For real time fetching:
+    <ScrollView contentContainerStyle={s.root}>
+      {/* For real time fetching: */}
 
-		{isPending && (
-          <View style={s.pending}>
-            <Text>Loading astronauts...</Text>
-          </View>
-        )} */}
-        {/* {data?.results.map((astronaut: Astronaut) => (
-          <AstronautRow astronaut={astronaut} />
-        ))} */}
+      {/* {isPending && (
+        <View style={s.pending}>
+          <Text>Loading astronauts...</Text>
+        </View>
+      )}
+      {data?.results.map((astronaut: Astronaut) => (
+        <AstronautRow key={astronaut.id} astronaut={astronaut} />
+      ))} */}
 
-        {astronauts.results.map((astronaut: Astronaut) => (
-          <AstronautRow key={astronaut.id} astronaut={astronaut} />
-        ))}
-      </ScrollView>
-    </>
+      {astronauts.results.map((astronaut: Astronaut) => (
+        <AstronautRow key={astronaut.id} astronaut={astronaut} />
+      ))}
+    </ScrollView>
   );
 }
 
 const s = StyleSheet.create({
   root: {
-    flex: 1,
-    // justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "white",
+    backgroundColor: "#323335",
+    width: "100%",
+    flexGrow: 1,
+    paddingHorizontal: 6,
   },
   pending: { color: "red", marginTop: 20 },
 });

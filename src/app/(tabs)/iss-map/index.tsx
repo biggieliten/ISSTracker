@@ -43,11 +43,9 @@ export default function ISSMap() {
     // refetchInterval: 5000,
   });
 
-  if (isError) return null;
-
   const { location } = useGetDeviceLocation();
 
-  const [webViewContent, setWebViewContent] = useState<string | null>(null);
+  const [webViewContent, setWebViewContent] = useState<string>();
   const [zoom, setZoom] = useState(5);
   const [followISS, setFollowISS] = useState(true);
   const [isDarkMap, setIsDarkMap] = useState(true);
@@ -57,7 +55,7 @@ export default function ISSMap() {
 
     const loadHtml = async () => {
       try {
-        const path = require("../../../assets/leaflet.html");
+        const path = require("../../../../assets/leaflet.html");
         const asset = Asset.fromModule(path);
         await asset.downloadAsync();
         const htmlContent = await FileSystem.readAsStringAsync(asset.localUri!);
@@ -77,6 +75,8 @@ export default function ISSMap() {
       isMounted = false;
     };
   }, []);
+
+  if (isError) return <Text>Failed to load ISS position.</Text>;
 
   if (!webViewContent || isPending) {
     return (
