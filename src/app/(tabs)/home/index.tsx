@@ -1,34 +1,40 @@
-import { Astronaut, AstronautResponse } from "@/api/astronauts";
+import {
+  Astronaut,
+  AstronautResponse,
+  getAstronautsInSpaceNow,
+} from "@/api/astronauts";
 import AstronautRow from "@/components/astronaut-row";
-import { StyleSheet } from "react-native";
+import { useQuery } from "@tanstack/react-query";
+import { StyleSheet, Text, View } from "react-native";
 
 import { ScrollView } from "react-native";
 
 const THREE_HOURS_MS = 3 * 60 * 60 * 1000;
 
 export default function HomeScreen() {
-  //   const { data, isPending } = useQuery({
-  //     queryKey: ["astronauts"],
-  //     queryFn: getAstronautsInSpaceNow,
-  //     staleTime: THREE_HOURS_MS,
-  //   });
+  const { data, isPending, isError, error } = useQuery({
+    queryKey: ["astronauts"],
+    queryFn: getAstronautsInSpaceNow,
+    staleTime: THREE_HOURS_MS,
+  });
 
+  if (isError) console.log("Error", error);
   return (
     <ScrollView contentContainerStyle={s.root}>
       {/* For real time fetching: */}
 
-      {/* {isPending && (
+      {isPending && (
         <View style={s.pending}>
           <Text>Loading astronauts...</Text>
         </View>
       )}
       {data?.results.map((astronaut: Astronaut) => (
         <AstronautRow key={astronaut.id} astronaut={astronaut} />
-      ))} */}
-
-      {astronauts.results.map((astronaut: Astronaut) => (
-        <AstronautRow key={astronaut.id} astronaut={astronaut} />
       ))}
+
+      {/* {astronauts.results.map((astronaut: Astronaut) => (
+        <AstronautRow key={astronaut.id} astronaut={astronaut} />
+      ))} */}
     </ScrollView>
   );
 }
