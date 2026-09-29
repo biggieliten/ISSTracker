@@ -9,6 +9,10 @@ export default function HomeLayout() {
       }}
     >
       <Stack.Screen name="index" />
+      <Stack.Screen
+        options={{ headerShown: false, statusBarHidden: true }}
+        name="astronaut/[id]"
+      />
     </Stack>
   );
 }
