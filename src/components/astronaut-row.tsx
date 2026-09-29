@@ -1,19 +1,22 @@
 import { Astronaut } from "@/api/astronauts";
+import { Link } from "expo-router";
 import { ArrowRight } from "lucide-react-native";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function AstronautRow({ astronaut }: { astronaut: Astronaut }) {
   return (
-    <Pressable style={s.root}>
-      <View style={s.details}>
-        <Image
-          style={s.thumbNail}
-          source={{ uri: astronaut.image.thumbnail_url }}
-        />
-        <Text style={s.text}>{astronaut.name}</Text>
-      </View>
-      <ArrowRight size={30} color="white" />
-    </Pressable>
+    <Link href={`/(tabs)/home/astronaut/${astronaut.id}`} asChild>
+      <Pressable style={s.root}>
+        <View style={s.details}>
+          <Image
+            style={s.thumbNail}
+            source={{ uri: astronaut.image.thumbnail_url }}
+          />
+          <Text style={s.text}>{astronaut.name}</Text>
+        </View>
+        <ArrowRight size={30} color="white" />
+      </Pressable>
+    </Link>
   );
 }
 
@@ -40,8 +43,5 @@ const s = StyleSheet.create({
     color: "#ffff",
     fontWeight: "bold",
     fontSize: 24,
-  },
-  arrow: {
-    marginRight: 15,
   },
 });
