@@ -17,7 +17,6 @@ export function useGetDeviceLocation() {
 
       positionSubscription = await Location.watchPositionAsync(
         {
-          //   timeInterval: 2,
           distanceInterval: 1,
           accuracy: Location.Accuracy.Balanced,
         },
