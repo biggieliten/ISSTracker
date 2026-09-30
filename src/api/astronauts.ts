@@ -1,15 +1,41 @@
+export type SocialMediaLink = {
+  id: number;
+  url: string;
+  social_media: {
+    id: number;
+    name: string;
+    url: string;
+    logo: { image_url: string; thumbnail_url: string } | null;
+  };
+};
+
 export type Astronaut = {
   id: number;
   name: string;
   status: { name: string };
-  agency: { name: string; addbrev: string };
+  type: { name: string } | null;
+  agency: { name: string; abbrev: string; type: { name: string } | null };
   image: { image_url: string; thumbnail_url: string };
+  in_space: boolean;
+  time_in_space: string | null;
+  eva_time: string | null;
+  age: number | null;
   date_of_birth: string | null;
-  nationality: { name: string; alpha_3_code: string }[];
+  date_of_death: string | null;
+  nationality: {
+    name: string;
+    alpha_2_code: string;
+    alpha_3_code: string;
+    nationality_name: string;
+  }[];
   bio: string | null;
   wiki: string | null;
   last_flight: string | null;
   first_flight: string | null;
+  social_media_links: SocialMediaLink[];
+  flights_count: number | null;
+  landings_count: number | null;
+  spacewalks_count: number | null;
 };
 
 export type AstronautResponse = {
