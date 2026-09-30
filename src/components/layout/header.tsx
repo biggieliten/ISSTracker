@@ -1,13 +1,20 @@
+import { FontSize, FontWeight, Spacing } from "@/constants/theme";
+import { useTheme } from "@/hooks/useTheme";
 import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type Props = { title: string };
 
 export default function Header({ title }: Props) {
+  const { colors } = useTheme();
+
   return (
-    <SafeAreaView edges={["top"]} style={s.root}>
+    <SafeAreaView
+      edges={["top"]}
+      style={[s.root, { backgroundColor: colors.backgroundElement }]}
+    >
       <View style={s.bar}>
-        <Text style={s.title}>{title}</Text>
+        <Text style={[s.title, { color: colors.text }]}>{title}</Text>
       </View>
     </SafeAreaView>
   );
@@ -15,8 +22,7 @@ export default function Header({ title }: Props) {
 
 const s = StyleSheet.create({
   root: {
-    backgroundColor: "#212225",
-    paddingBottom: 10,
+    paddingBottom: Spacing.two + Spacing.half,
   },
   bar: {
     height: 56,
@@ -24,9 +30,7 @@ const s = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    color: "white",
-    fontWeight: "bold",
-    fontSize: 20,
+    fontWeight: FontWeight.bold,
+    fontSize: FontSize.lg,
   },
-  safeView: {},
 });

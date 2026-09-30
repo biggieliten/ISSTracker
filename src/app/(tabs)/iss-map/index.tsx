@@ -4,7 +4,15 @@ import {
   LIGHT_SATELLITE_SVG,
   USER_SVG,
 } from "@/assets/map-markers";
+import {
+  BorderWidth,
+  FontSize,
+  FontWeight,
+  Radius,
+  Spacing,
+} from "@/constants/theme";
 import { useGetDeviceLocation } from "@/hooks/useGetLocation";
+import { useTheme } from "@/hooks/useTheme";
 import { useQuery } from "@tanstack/react-query";
 import { Asset } from "expo-asset";
 import * as FileSystem from "expo-file-system/legacy";
@@ -37,6 +45,7 @@ const MapLayers = {
 };
 
 export default function ISSMap() {
+  const { colors, isDark } = useTheme();
   const { data, isPending, isError } = useQuery({
     queryKey: ["coordinates"],
     queryFn: getISSCoordinates,
@@ -48,7 +57,6 @@ export default function ISSMap() {
   const [webViewContent, setWebViewContent] = useState<string>();
   const [zoom, setZoom] = useState(5);
   const [followISS, setFollowISS] = useState(true);
-  const [isDarkMap, setIsDarkMap] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
@@ -76,12 +84,15 @@ export default function ISSMap() {
     };
   }, []);
 
-  if (isError) return <Text>Failed to load ISS position.</Text>;
+  if (isError)
+    return (
+      <Text style={{ color: colors.text }}>Failed to load ISS position.</Text>
+    );
 
   if (!webViewContent || isPending) {
     return (
-      <View style={s.root}>
-        <ActivityIndicator size="large" color="#2563EB" />
+      <View style={[s.root, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -98,7 +109,7 @@ export default function ISSMap() {
 
   const mapMarkers: MapMarker[] = [
     {
-      icon: isDarkMap ? DARK_SATELLITE_SVG : LIGHT_SATELLITE_SVG,
+      icon: isDark ? DARK_SATELLITE_SVG : LIGHT_SATELLITE_SVG,
       position: [data.iss_position.latitude, data.iss_position.longitude],
     },
   ];
@@ -112,23 +123,24 @@ export default function ISSMap() {
 
   return (
     <View style={s.root}>
-      <View style={s.settings}>
+      <View
+        style={[
+          s.settings,
+          { backgroundColor: colors.surface, borderColor: colors.border },
+        ]}
+      >
         <View style={s.switch}>
-          <Text style={s.switchLabel}>Follow ISS</Text>
+          <Text style={[s.switchLabel, { color: colors.text }]}>
+            Follow ISS
+          </Text>
           <Switch
             value={followISS}
             onValueChange={setFollowISS}
-            trackColor={{ false: "#CBD5E1", true: "#93C5FD" }}
-            thumbColor={followISS ? "#2563EB" : "#F8FAFC"}
-          />
-        </View>
-        <View style={s.switch}>
-          <Text style={s.switchLabel}>Dark Map</Text>
-          <Switch
-            value={isDarkMap}
-            onValueChange={setIsDarkMap}
-            trackColor={{ false: "#CBD5E1", true: "#93C5FD" }}
-            thumbColor={followISS ? "#2563EB" : "#F8FAFC"}
+            trackColor={{
+              false: colors.switchTrackOff,
+              true: colors.switchTrackOn,
+            }}
+            thumbColor={followISS ? colors.primary : colors.switchThumbOff}
           />
         </View>
       </View>
@@ -136,7 +148,7 @@ export default function ISSMap() {
         doDebug={false}
         source={{ html: webViewContent }}
         mapMarkers={mapMarkers}
-        mapLayers={isDarkMap ? [MapLayers.dark] : [MapLayers.light]}
+        mapLayers={isDark ? [MapLayers.dark] : [MapLayers.light]}
         mapCenterPosition={
           followISS
             ? {
@@ -171,15 +183,13 @@ const s = StyleSheet.create({
     alignItems: "center",
     gap: 5,
     padding: 10,
-    backgroundColor: "#FFFFFF",
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
-    borderRadius: 24,
+    borderWidth: BorderWidth.thin,
+    borderRadius: Radius.xl,
   },
-  switch: { flexDirection: "row", alignItems: "center" },
+  switch: { flexDirection: "row", alignItems: "center", gap: Spacing.one },
 
   switchLabel: {
-    fontSize: 14,
-    fontWeight: "600",
+    fontSize: FontSize.md,
+    fontWeight: FontWeight.semibold,
   },
 });

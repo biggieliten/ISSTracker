@@ -1,34 +1,92 @@
 import {
   Astronaut,
-  AstronautResponse,
   getAstronautsInSpaceNow,
 } from "@/api/astronauts";
 import AstronautRow from "@/components/astronaut-row";
+import {
+  BorderWidth,
+  FontSize,
+  FontWeight,
+  IconSize,
+  LetterSpacing,
+  LineHeight,
+  Radius,
+} from "@/constants/theme";
+import { useTheme } from "@/hooks/useTheme";
 import { useQuery } from "@tanstack/react-query";
-import { StyleSheet, Text, View } from "react-native";
-
-import { ScrollView } from "react-native";
+import { Orbit } from "lucide-react-native";
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 const THREE_HOURS_MS = 3 * 60 * 60 * 1000;
 
 export default function HomeScreen() {
-  const { data, isPending, isError, error } = useQuery({
+  const { colors } = useTheme();
+  const { data, refetch, isPending, isError, error } = useQuery({
     queryKey: ["astronauts"],
     queryFn: getAstronautsInSpaceNow,
     staleTime: THREE_HOURS_MS,
   });
 
   if (isError) console.log("Error", error);
-  return (
-    <ScrollView contentContainerStyle={s.root}>
-      {/* For real time fetching: */}
 
-      {isPending && (
-        <View style={s.pending}>
-          <Text>Loading astronauts...</Text>
+  if (isPending) {
+    return (
+      <View style={[s.pending, { backgroundColor: colors.background }]}>
+        <ActivityIndicator color={colors.primary} />
+      </View>
+    );
+  }
+
+  if (!data) {
+    return (
+      <View style={[s.pending, { backgroundColor: colors.background }]}>
+        <Text style={{ color: colors.text }}>Could not load astronauts.</Text>
+        <Pressable onPress={() => refetch()}>
+          <Text>Try again</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
+  return (
+    <ScrollView
+      style={{ backgroundColor: colors.background }}
+      contentContainerStyle={[s.root, { backgroundColor: colors.background }]}
+    >
+      <View
+        style={[
+          s.countCard,
+          { backgroundColor: colors.surface, borderLeftColor: colors.primary },
+        ]}
+      >
+        <View style={s.countText}>
+          <Text style={[s.countLabel, { color: colors.textSecondary }]}>
+            PEOPLE IN SPACE
+          </Text>
+          <Text style={[s.countValue, { color: colors.text }]}>
+            {data.count}
+          </Text>
+          <Text style={[s.countSub, { color: colors.textSecondary }]}>
+            Orbiting Earth right now
+          </Text>
         </View>
-      )}
-      {data?.results.map((astronaut: Astronaut) => (
+        <View style={[s.countIcon, { backgroundColor: colors.primaryMuted }]}>
+          <Orbit size={IconSize.lg} color={colors.primary} />
+        </View>
+      </View>
+
+      <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>
+        CREW
+      </Text>
+
+      {data.results.map((astronaut: Astronaut) => (
         <AstronautRow key={astronaut.id} astronaut={astronaut} />
       ))}
 
@@ -41,15 +99,53 @@ export default function HomeScreen() {
 
 const s = StyleSheet.create({
   root: {
-    backgroundColor: "#323335",
     width: "100%",
     flexGrow: 1,
     paddingHorizontal: 6,
   },
-  pending: { color: "red", marginTop: 20 },
+  pending: {
+    flex: 1,
+    paddingTop: 20,
+  },
+  countCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderRadius: Radius.lg,
+    borderLeftWidth: BorderWidth.accent,
+    padding: 20,
+    marginTop: 12,
+  },
+  countText: { gap: 2 },
+  countLabel: {
+    fontSize: FontSize.xs,
+    fontWeight: FontWeight.semibold,
+    letterSpacing: LetterSpacing.label,
+  },
+  countValue: {
+    fontSize: FontSize.display,
+    fontWeight: FontWeight.bold,
+    lineHeight: LineHeight.display,
+  },
+  countSub: { fontSize: FontSize.md },
+  countIcon: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  sectionLabel: {
+    fontSize: FontSize.xs,
+    fontWeight: FontWeight.semibold,
+    letterSpacing: LetterSpacing.label,
+    marginTop: 20,
+    marginBottom: 6,
+    marginLeft: 4,
+  },
 });
 
-const astronauts: AstronautResponse = {
+const astronauts = {
   count: 11,
   next: "https://ll.thespacedevs.com/2.3.0/astronauts/?format=json&in_space=true&limit=10&mode=detailed&offset=10",
   previous: null,

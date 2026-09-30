@@ -5,7 +5,7 @@ export default function HomeLayout() {
   return (
     <Stack
       screenOptions={{
-        header: () => <Header title="In Space Now" />,
+        header: () => <Header title="In Space" />,
       }}
     >
       <Stack.Screen name="index" />

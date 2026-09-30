@@ -1,34 +1,52 @@
+import {
+  FontSize,
+  FontWeight,
+  IconSize,
+  Radius,
+  Spacing,
+} from "@/constants/theme";
+import { useTheme } from "@/hooks/useTheme";
 import { LucideIcon } from "lucide-react-native";
-import { StyleSheet, Text, View } from "react-native";
+import {
+  StyleProp,
+  StyleSheet,
+  Text,
+  View,
+  ViewStyle,
+} from "react-native";
 
-type Props = { icon: LucideIcon; label: string; value: string };
+type Props = {
+  icon: LucideIcon;
+  label: string;
+  value: string;
+  style?: StyleProp<ViewStyle>;
+};
 
-export default function StatCard({ icon: Icon, label, value }: Props) {
+export default function StatCard({ icon: Icon, label, value, style }: Props) {
+  const { colors } = useTheme();
+
   return (
-    <View style={s.root}>
-      <Icon size={18} color="#2563EB" />
-      <Text style={s.label}>{label}</Text>
-      <Text style={s.value}>{value}</Text>
+    <View style={[s.root, { backgroundColor: colors.surface }, style]}>
+      <Icon size={IconSize.sm} color={colors.primary} />
+      <Text style={[s.label, { color: colors.textSecondary }]}>{label}</Text>
+      <Text style={[s.value, { color: colors.text }]}>{value}</Text>
     </View>
   );
 }
 
 const s = StyleSheet.create({
   root: {
-    backgroundColor: "#131314",
-    borderRadius: 12,
+    borderRadius: Radius.md,
     padding: 14,
-    gap: 4,
+    gap: Spacing.one,
     flexGrow: 1,
     flexBasis: "45%",
   },
   value: {
-    color: "#ffff",
-    fontSize: 16,
-    fontWeight: "bold",
+    fontSize: FontSize.base,
+    fontWeight: FontWeight.bold,
   },
   label: {
-    color: "#B0B4BA",
-    fontSize: 13,
+    fontSize: FontSize.sm,
   },
 });
