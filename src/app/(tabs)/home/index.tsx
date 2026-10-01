@@ -15,6 +15,7 @@ import {
 import { useTheme } from "@/hooks/useTheme";
 import { useQuery } from "@tanstack/react-query";
 import { Orbit } from "lucide-react-native";
+import { Fragment } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -25,6 +26,9 @@ import {
 } from "react-native";
 
 const THREE_HOURS_MS = 3 * 60 * 60 * 1000;
+
+const getAgencyLabel = (astronaut: Astronaut) =>
+  astronaut.agency.abbrev || astronaut.agency.name;
 
 export default function HomeScreen() {
   const { colors } = useTheme();
@@ -55,6 +59,9 @@ export default function HomeScreen() {
     );
   }
 
+  // Every agency that has someone in space, each listed once, in alphabetical order
+  const agencies = Array.from(new Set(data.results.map(getAgencyLabel))).sort();
+
   return (
     <ScrollView
       style={{ backgroundColor: colors.background }}
@@ -82,13 +89,23 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>
-        CREW
-      </Text>
+      {agencies.map((agency) => {
+        const crew = data.results.filter(
+          (astronaut) => getAgencyLabel(astronaut) === agency,
+        );
 
-      {data.results.map((astronaut: Astronaut) => (
-        <AstronautRow key={astronaut.id} astronaut={astronaut} />
-      ))}
+        return (
+          <Fragment key={agency}>
+            <Text style={[s.sectionLabel, { color: colors.textSecondary }]}>
+              {agency.toUpperCase()} · {crew.length}
+            </Text>
+
+            {crew.map((astronaut) => (
+              <AstronautRow key={astronaut.id} astronaut={astronaut} />
+            ))}
+          </Fragment>
+        );
+      })}
 
       {/* {astronauts.results.map((astronaut: Astronaut) => (
         <AstronautRow key={astronaut.id} astronaut={astronaut} />

@@ -1,7 +1,7 @@
 import type { Units } from "@/atoms/settings";
 import { getDistance, getGreatCircleBearing } from "geolib";
 
-type Coordinates = {
+export type Coordinates = {
   latitude: number;
   longitude: number;
 };

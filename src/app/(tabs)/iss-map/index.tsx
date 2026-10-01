@@ -14,6 +14,7 @@ import {
   Spacing,
 } from "@/constants/theme";
 import { useGetDeviceLocation } from "@/hooks/useGetLocation";
+import { useNextFlyover } from "@/hooks/useNextFlyover";
 import { useTheme } from "@/hooks/useTheme";
 import {
   calcIssBearing,
@@ -22,6 +23,7 @@ import {
   VISIBILITY_RADIUS_KM,
 } from "@/utils/iss-proximity";
 import { useQuery } from "@tanstack/react-query";
+import { formatDistanceToNow } from "date-fns";
 import { Asset } from "expo-asset";
 import * as FileSystem from "expo-file-system/legacy";
 import { useAtomValue } from "jotai";
@@ -70,6 +72,7 @@ export default function ISSMap() {
   });
 
   const { location } = useGetDeviceLocation();
+  const nextFlyover = useNextFlyover(location);
 
   const [webViewContent, setWebViewContent] = useState<string>();
   const [zoom, setZoom] = useState(5);
@@ -178,6 +181,11 @@ export default function ISSMap() {
             {isAboveHorizon && (
               <Text style={[s.distanceLabel, { color: colors.success }]}>
                 Above your horizon
+              </Text>
+            )}
+            {!isAboveHorizon && nextFlyover && (
+              <Text style={[s.distanceLabel, { color: colors.textSecondary }]}>
+                Next flyover in {formatDistanceToNow(nextFlyover)}
               </Text>
             )}
           </View>
