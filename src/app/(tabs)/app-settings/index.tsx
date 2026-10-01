@@ -7,6 +7,7 @@ import {
   Spacing,
 } from "@/constants/theme";
 import { ThemePreference, useTheme } from "@/hooks/useTheme";
+import { Units, useUnits } from "@/hooks/useUnits";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 const OPTIONS: { value: ThemePreference; label: string }[] = [
@@ -15,8 +16,14 @@ const OPTIONS: { value: ThemePreference; label: string }[] = [
   { value: "dark", label: "Dark" },
 ];
 
+const UNIT_OPTIONS: { value: Units; label: string }[] = [
+  { value: "metric", label: "Metric" },
+  { value: "imperial", label: "Imperial" },
+];
+
 export default function Settings() {
   const { colors, preference, setPreference } = useTheme();
+  const { units, setUnits } = useUnits();
 
   return (
     <ScrollView
@@ -52,6 +59,38 @@ export default function Settings() {
           );
         })}
       </View>
+
+      <Text
+        style={[s.sectionLabel, s.sectionGap, { color: colors.textSecondary }]}
+      >
+        UNITS
+      </Text>
+      <View style={[s.group, { backgroundColor: colors.surface }]}>
+        {UNIT_OPTIONS.map(({ value, label }) => {
+          const selected = units === value;
+          return (
+            <Pressable
+              key={value}
+              onPress={() => setUnits(value)}
+              style={[
+                s.option,
+                {
+                  backgroundColor: selected ? colors.primary : "transparent",
+                },
+              ]}
+            >
+              <Text
+                style={[
+                  s.optionLabel,
+                  { color: selected ? colors.onPrimary : colors.text },
+                ]}
+              >
+                {label}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
     </ScrollView>
   );
 }
@@ -66,6 +105,9 @@ const s = StyleSheet.create({
     fontWeight: FontWeight.semibold,
     letterSpacing: LetterSpacing.label,
     marginLeft: Spacing.one,
+  },
+  sectionGap: {
+    marginTop: Spacing.three,
   },
   group: {
     flexDirection: "row",

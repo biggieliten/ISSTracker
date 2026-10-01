@@ -13,6 +13,8 @@ import {
 } from "@/constants/theme";
 import { useGetDeviceLocation } from "@/hooks/useGetLocation";
 import { useTheme } from "@/hooks/useTheme";
+import { useUnits } from "@/hooks/useUnits";
+import { calcIssDistance, formatDistance } from "@/utils/iss-proximity";
 import { useQuery } from "@tanstack/react-query";
 import { Asset } from "expo-asset";
 import * as FileSystem from "expo-file-system/legacy";
@@ -46,10 +48,11 @@ const MapLayers = {
 
 export default function ISSMap() {
   const { colors, isDark } = useTheme();
+  const { units } = useUnits();
   const { data, isPending, isError } = useQuery({
     queryKey: ["coordinates"],
     queryFn: getISSCoordinates,
-    // refetchInterval: 5000,
+    refetchInterval: 5000,
   });
 
   const { location } = useGetDeviceLocation();
@@ -121,8 +124,30 @@ export default function ISSMap() {
     });
   }
 
+  const distance = location
+    ? calcIssDistance(location, {
+        latitude: Number(data.iss_position.latitude),
+        longitude: Number(data.iss_position.longitude),
+      })
+    : null;
+
   return (
     <View style={s.root}>
+      {distance !== null && (
+        <View
+          style={[
+            s.distance,
+            { backgroundColor: colors.surface, borderColor: colors.border },
+          ]}
+        >
+          <Text style={[s.distanceLabel, { color: colors.textSecondary }]}>
+            Distance to ISS
+          </Text>
+          <Text style={[s.distanceValue, { color: colors.text }]}>
+            {formatDistance(distance, units)}
+          </Text>
+        </View>
+      )}
       <View
         style={[
           s.settings,
@@ -189,6 +214,23 @@ const s = StyleSheet.create({
   switch: { flexDirection: "row", alignItems: "center", gap: Spacing.one },
 
   switchLabel: {
+    fontSize: FontSize.md,
+    fontWeight: FontWeight.semibold,
+  },
+  distance: {
+    position: "absolute",
+    bottom: 24,
+    left: 20,
+    zIndex: 10,
+    elevation: 8,
+    padding: 10,
+    borderWidth: BorderWidth.thin,
+    borderRadius: Radius.xl,
+  },
+  distanceLabel: {
+    fontSize: FontSize.xs,
+  },
+  distanceValue: {
     fontSize: FontSize.md,
     fontWeight: FontWeight.semibold,
   },
