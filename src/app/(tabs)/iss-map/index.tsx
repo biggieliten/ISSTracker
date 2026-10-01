@@ -1,9 +1,11 @@
 import getISSCoordinates from "@/api/iss";
+import { showVisibilityCircleAtom, unitsAtom } from "@/atoms/settings";
 import {
   DARK_SATELLITE_SVG,
   LIGHT_SATELLITE_SVG,
   USER_SVG,
 } from "@/assets/map-markers";
+import IssCompass from "@/components/iss-compass";
 import {
   BorderWidth,
   FontSize,
@@ -13,11 +15,16 @@ import {
 } from "@/constants/theme";
 import { useGetDeviceLocation } from "@/hooks/useGetLocation";
 import { useTheme } from "@/hooks/useTheme";
-import { useUnits } from "@/hooks/useUnits";
-import { calcIssDistance, formatDistance } from "@/utils/iss-proximity";
+import {
+  calcIssBearing,
+  calcIssDistance,
+  formatDistance,
+  VISIBILITY_RADIUS_KM,
+} from "@/utils/iss-proximity";
 import { useQuery } from "@tanstack/react-query";
 import { Asset } from "expo-asset";
 import * as FileSystem from "expo-file-system/legacy";
+import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -31,6 +38,8 @@ import {
   LeafletView,
   MapLayerType,
   MapMarker,
+  MapShape,
+  MapShapeType,
 } from "react-native-leaflet-view";
 
 const MapLayers = {
@@ -46,9 +55,14 @@ const MapLayers = {
   },
 };
 
+// The map library draws our 24px icons from a 12px box: centred sideways but
+// hanging down from the top. This anchor puts the icon's centre on its position.
+const MARKER_ANCHOR: [number, number] = [6, 12];
+
 export default function ISSMap() {
   const { colors, isDark } = useTheme();
-  const { units } = useUnits();
+  const units = useAtomValue(unitsAtom);
+  const showVisibilityCircle = useAtomValue(showVisibilityCircleAtom);
   const { data, isPending, isError } = useQuery({
     queryKey: ["coordinates"],
     queryFn: getISSCoordinates,
@@ -113,6 +127,7 @@ export default function ISSMap() {
   const mapMarkers: MapMarker[] = [
     {
       icon: isDark ? DARK_SATELLITE_SVG : LIGHT_SATELLITE_SVG,
+      iconAnchor: MARKER_ANCHOR,
       position: [data.iss_position.latitude, data.iss_position.longitude],
     },
   ];
@@ -120,32 +135,52 @@ export default function ISSMap() {
   if (location) {
     mapMarkers.push({
       icon: USER_SVG,
+      iconAnchor: MARKER_ANCHOR,
       position: [location.latitude, location.longitude],
     });
   }
 
-  const distance = location
-    ? calcIssDistance(location, {
-        latitude: Number(data.iss_position.latitude),
-        longitude: Number(data.iss_position.longitude),
-      })
-    : null;
+  const issCoords = {
+    latitude: Number(data.iss_position.latitude),
+    longitude: Number(data.iss_position.longitude),
+  };
+
+  const distance = location ? calcIssDistance(location, issCoords) : null;
+  const bearing = location ? calcIssBearing(location, issCoords) : null;
+  const isAboveHorizon = distance !== null && distance <= VISIBILITY_RADIUS_KM;
+
+  const mapShapes: MapShape[] = [
+    {
+      shapeType: MapShapeType.CIRCLE,
+      color: colors.primary,
+      center: { lat: issCoords.latitude, lng: issCoords.longitude },
+      radius: VISIBILITY_RADIUS_KM * 1000,
+    },
+  ];
 
   return (
     <View style={s.root}>
-      {distance !== null && (
+      {distance !== null && bearing !== null && (
         <View
           style={[
             s.distance,
             { backgroundColor: colors.surface, borderColor: colors.border },
           ]}
         >
-          <Text style={[s.distanceLabel, { color: colors.textSecondary }]}>
-            Distance to ISS
-          </Text>
-          <Text style={[s.distanceValue, { color: colors.text }]}>
-            {formatDistance(distance, units)}
-          </Text>
+          <IssCompass bearing={bearing} />
+          <View>
+            <Text style={[s.distanceLabel, { color: colors.textSecondary }]}>
+              Distance to ISS
+            </Text>
+            <Text style={[s.distanceValue, { color: colors.text }]}>
+              {formatDistance(distance, units)}
+            </Text>
+            {isAboveHorizon && (
+              <Text style={[s.distanceLabel, { color: colors.success }]}>
+                Above your horizon
+              </Text>
+            )}
+          </View>
         </View>
       )}
       <View
@@ -173,6 +208,7 @@ export default function ISSMap() {
         doDebug={false}
         source={{ html: webViewContent }}
         mapMarkers={mapMarkers}
+        mapShapes={showVisibilityCircle ? mapShapes : []}
         mapLayers={isDark ? [MapLayers.dark] : [MapLayers.light]}
         mapCenterPosition={
           followISS
@@ -223,6 +259,9 @@ const s = StyleSheet.create({
     left: 20,
     zIndex: 10,
     elevation: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.two,
     padding: 10,
     borderWidth: BorderWidth.thin,
     borderRadius: Radius.xl,

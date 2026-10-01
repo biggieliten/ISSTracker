@@ -1,14 +1,11 @@
+import { themePreferenceAtom, type ThemePreference } from "@/atoms/settings";
 import {
   Colors,
   type ColorSchemeName,
   type ThemeColors,
 } from "@/constants/theme";
-import { atom, useAtom } from "jotai";
+import { useAtom } from "jotai";
 import { Appearance, useColorScheme } from "react-native";
-
-export type ThemePreference = "system" | "light" | "dark";
-
-const preferenceAtom = atom<ThemePreference>("system");
 
 export function useTheme(): {
   colors: ThemeColors;
@@ -18,7 +15,7 @@ export function useTheme(): {
   setPreference: (preference: ThemePreference) => void;
 } {
   const systemScheme = useColorScheme();
-  const [preference, setPreferenceAtom] = useAtom(preferenceAtom);
+  const [preference, setPreferenceAtom] = useAtom(themePreferenceAtom);
 
   const scheme: ColorSchemeName = systemScheme === "dark" ? "dark" : "light";
 
