@@ -16,9 +16,20 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npx expo start
    ```
 
+## React Native Components
+
+View [x]
+Text [x]
+Image [x]
+Pressable [x]
+ScrollView [x]
+Switch [x]
+ActivityIndicator [x]
+
 ## Expo SDKs
 
-- FileSystem (Legacy) [x]
-- Location [x]
-- Notification [ ]
-- WebBrowser [ ]
+- expo-file-system (Legacy) [x]
+- expo-location [x]
+- expo-sensors [x]
+- expo-asset [x]
+- expo-web-browser [x]
