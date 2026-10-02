@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 
 const UPDATE_INTERVAL_MS = 200;
 
-/** Direction the top of the phone points, in degrees (0 = north, 90 = east). */
 export function useHeading() {
   const [heading, setHeading] = useState<number | null>(null);
 

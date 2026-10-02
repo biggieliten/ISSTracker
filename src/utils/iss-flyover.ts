@@ -16,7 +16,6 @@ import {
 const STEP_MS = 60 * 1000;
 const SEARCH_MS = 24 * 60 * 60 * 1000;
 
-/** Finds the next time the ISS rises above the horizon at `observer`. */
 export function predictNextFlyover(
   orbit: OMMJsonObject,
   observer: Coordinates,

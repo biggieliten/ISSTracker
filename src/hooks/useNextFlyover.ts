@@ -13,7 +13,6 @@ export function useNextFlyover(location: Coordinates | null) {
     staleTime: SIX_HOURS_MS,
   });
 
-  // Rounded so that walking around doesn't trigger a new prediction
   const latitude = location?.latitude.toFixed(1);
   const longitude = location?.longitude.toFixed(1);
 
