@@ -7,36 +7,34 @@ export function useGetDeviceLocation() {
 
   useEffect(() => {
     let positionSubscription: Location.LocationSubscription;
+    let isMounted = true;
 
     async function WatchLocation() {
       let { status } = await Location.requestForegroundPermissionsAsync();
 
-      if (status != "granted") {
+      if (status !== "granted") {
         return;
       }
 
-      positionSubscription = await Location.watchPositionAsync(
+      const subscription = await Location.watchPositionAsync(
         {
           distanceInterval: 1,
           accuracy: Location.Accuracy.Balanced,
         },
         (location: Location.LocationObject) => {
-          (setLocation(location.coords),
-            console.log(
-              "lat:",
-              location.coords.latitude,
-              "lon:",
-              location.coords.longitude,
-              "CURRENT LOCATION",
-            ));
+          setLocation(location.coords);
         },
       );
+
+      if (isMounted) positionSubscription = subscription;
+      else subscription.remove();
     }
 
     WatchLocation();
 
     return () => {
-      positionSubscription.remove();
+      isMounted = false;
+      positionSubscription?.remove();
     };
   }, []);
 

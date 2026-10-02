@@ -1,7 +1,4 @@
-import {
-  Astronaut,
-  getAstronautsInSpaceNow,
-} from "@/api/astronauts";
+import { Astronaut, getAstronautsInSpaceNow } from "@/api/astronauts";
 import AstronautRow from "@/components/astronaut-row";
 import {
   BorderWidth,
@@ -59,7 +56,6 @@ export default function HomeScreen() {
     );
   }
 
-  // Every agency that has someone in space, each listed once, in alphabetical order
   const agencies = Array.from(new Set(data.results.map(getAgencyLabel))).sort();
 
   return (

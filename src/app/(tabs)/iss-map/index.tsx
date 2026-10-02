@@ -1,10 +1,10 @@
 import getISSCoordinates from "@/api/iss";
-import { showVisibilityCircleAtom, unitsAtom } from "@/atoms/settings";
 import {
   DARK_SATELLITE_SVG,
   LIGHT_SATELLITE_SVG,
   USER_SVG,
 } from "@/assets/map-markers";
+import { showVisibilityCircleAtom, unitsAtom } from "@/atoms/settings";
 import IssCompass from "@/components/iss-compass";
 import {
   BorderWidth,
@@ -44,15 +44,17 @@ import {
   MapShapeType,
 } from "react-native-leaflet-view";
 
+const CARTO_API_KEY = process.env.EXPO_PUBLIC_CARTO_API_KEY;
+
 const MapLayers = {
   dark: {
     layerType: MapLayerType.TILE_LAYER,
-    url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=cb1_3xop_1_c901e44bfd7051cbb3a68d84",
+    url: `https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=${CARTO_API_KEY}`,
     attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
   },
   light: {
     layerType: MapLayerType.TILE_LAYER,
-    url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=cb1_3xop_1_c901e44bfd7051cbb3a68d84",
+    url: `https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=${CARTO_API_KEY}`,
     attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
   },
 };
@@ -238,8 +240,6 @@ const s = StyleSheet.create({
   root: {
     flex: 1,
     justifyContent: "center",
-    // height: "100%",
-    // position: "relative",
     flexDirection: "row",
   },
   settings: {
