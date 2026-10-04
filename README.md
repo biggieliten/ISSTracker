@@ -38,25 +38,25 @@ För att kunna hämta map layets från carto apiet.
 
 ## Använda RN-komponenter
 
-`View` - Används genom hela appen för att kapsal in, positionera och styra utseende på komponenter och sektioner på olika sidor.
-`Text` - Används genom hela appen för att lägga till text. Motsvarigheten till en p-tagg i html.
-`Image` - Image-taggen används för bilderna på astronauterna. I astronaut-row och i den sidan med dynamisk parameter under home/astronaut.
-`Pressable` - Pressable används till allt som behöver en klickfunktion. Bland annat i settings där vi väljer tema eller måttsystem, men även ligger innehållet i astronaut-row wrappat i en Pressable.
-`ScrollView` - Scrollview används på alla sidor förutom kartsidan för att ge möjlighet att scrolla när innehållet behöver mer utrymme.
-`Switch` - Switch-taggen används för att välja mellan två lägen på en inställning, t.ex i kartan där du kan välja att följa ISS eller på inställningssidan där du kan slå av och på visibility circle runt ISS.
-`ActivityIndicator` - Detta är en "snurra" som jag använder i samband med att vi för en fetch, så istället för att visa en tom sida renderar vi in denna.
+- `View` - Används genom hela appen för att kapsal in, positionera och styra utseende på komponenter och sektioner på olika sidor.
+- `Text` - Används genom hela appen för att lägga till text. Motsvarigheten till en p-tagg i html.
+- `Image` - Image-taggen används för bilderna på astronauterna. I astronaut-row och i den sidan med dynamisk parameter under home/astronaut.
+- `Pressable` - Pressable används till allt som behöver en klickfunktion. Bland annat i settings där vi väljer tema eller måttsystem, men även ligger innehållet i astronaut-row wrappat i en Pressable.
+- `ScrollView` - Scrollview används på alla sidor förutom kartsidan för att ge möjlighet att scrolla när innehållet behöver mer utrymme.
+- `Switch` - Switch-taggen används för att välja mellan två lägen på en inställning, t.ex i kartan där du kan välja att följa ISS eller på inställningssidan där du kan slå av och på visibility circle runt ISS.
+- `ActivityIndicator` - Detta är en "snurra" som jag använder i samband med att vi för en fetch, så istället för att visa en tom sida renderar vi in denna.
 
 ## Använda Expo SDK-moduler
 
-`expo-location` - Expo location använder jag för att begära åtkomst till enheten samt hålla appen uppdaterad om dess position medan den är igång. Location används i hooken "useGetLocation" som i sin tur används för att få ut enhetens position på kartan.
-`expo-sensors` - Läser telefonens magnetometer för att räkna ut vilket håll telefonen pekar, så att kompasspilen på kartan alltid pekar mot ISS. Används i
-`expo-asset` - Expo Asset används för att kunna ladda filer i telefonen via "Asset"-funktionen. Asset används ihop med Require() vilket endast ger en referens till filen och inte filen själv, så vad Asset gör är att den kan ta emot referensen och spara filen i telefonen. Detta behövs för att vi skall kunna ladda in leaflet kartan som är en html-fil.
-`expo-file-system` - Expo file system används ihop med expo asset. När vi sparat html-filen med Assetfunktionen kan vi läsa in den som en sträng via readAsStringAsync() och passa den vidare till html propertyn i kartelementet.
-`expo-web-browser` - Expo web browser används för att öppna upp länkar som finns i astronautsidan som en webläsare inuti appen.
+- `expo-location` - Expo location använder jag för att begära åtkomst till enheten samt hålla appen uppdaterad om dess position medan den är igång. Location används i hooken "useGetLocation" som i sin tur används för att få ut enhetens position på kartan.
+- `expo-sensors` - Läser telefonens magnetometer för att räkna ut vilket håll telefonen pekar, så att kompasspilen på kartan alltid pekar mot ISS. Används i
+- `expo-asset` - Expo Asset används för att kunna ladda filer i telefonen via "Asset"-funktionen. Asset används ihop med Require() vilket endast ger en referens till filen och inte filen själv, så vad Asset gör är att den kan ta emot referensen och spara filen i telefonen. Detta behövs för att vi skall kunna ladda in leaflet kartan som är en html-fil.
+- `expo-file-system` - Expo file system används ihop med expo asset. När vi sparat html-filen med Assetfunktionen kan vi läsa in den som en sträng via readAsStringAsync() och passa den vidare till html propertyn i kartelementet.
+- `expo-web-browser` - Expo web browser används för att öppna upp länkar som finns i astronautsidan som en webläsare inuti appen.
 
 ## Externa moduler
 
-`react-native-leaflet-view` - Används för min kartvy där du kan följa ISS i realtid.
+- `react-native-leaflet-view` - Används för min kartvy där du kan följa ISS i realtid.
 
 ## Användning av AI-verktyg
 
