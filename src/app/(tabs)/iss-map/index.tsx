@@ -51,11 +51,13 @@ const MapLayers = {
     layerType: MapLayerType.TILE_LAYER,
     url: `https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=${CARTO_API_KEY}`,
     attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
+    minZoom: 2,
   },
   light: {
     layerType: MapLayerType.TILE_LAYER,
     url: `https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=${CARTO_API_KEY}`,
     attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
+    minZoom: 2,
   },
 };
 
@@ -163,6 +165,14 @@ export default function ISSMap() {
     },
   ];
 
+  const LIMIT_MAP_TO_WORLD = `
+  L.Map.mergeOptions({
+    maxBounds: L.latLngBounds([[-85, -Infinity], [85, Infinity]]),
+    maxBoundsViscosity: 1,
+  });
+  true;
+`;
+
   return (
     <View style={s.root}>
       {distance !== null && bearing !== null && (
@@ -228,6 +238,7 @@ export default function ISSMap() {
               }
             : null
         }
+        injectedJavaScript={LIMIT_MAP_TO_WORLD}
         zoom={zoom}
         onMessageReceived={handleMapMessage}
         zoomControl={false}
