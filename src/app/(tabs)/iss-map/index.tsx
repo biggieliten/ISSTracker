@@ -65,6 +65,20 @@ const MapLayers = {
 // hanging down from the top. This anchor puts the icon's centre on its position.
 const MARKER_ANCHOR: [number, number] = [6, 12];
 
+// The library wraps markers in a cluster group that removes them while they are
+// off-screen and merges nearby ones, so keep markers mounted and never cluster.
+const MAP_SETUP_JS = `
+  L.Map.mergeOptions({
+    maxBounds: L.latLngBounds([[-85, -Infinity], [85, Infinity]]),
+    maxBoundsViscosity: 1,
+  });
+  L.MarkerClusterGroup.mergeOptions({
+    removeOutsideVisibleBounds: false,
+    disableClusteringAtZoom: 1,
+  });
+  true;
+`;
+
 export default function ISSMap() {
   const { colors, isDark } = useTheme();
   const units = useAtomValue(unitsAtom);
@@ -133,6 +147,7 @@ export default function ISSMap() {
 
   const mapMarkers: MapMarker[] = [
     {
+      id: "iss",
       icon: isDark ? DARK_SATELLITE_SVG : LIGHT_SATELLITE_SVG,
       iconAnchor: MARKER_ANCHOR,
       position: [data.iss_position.latitude, data.iss_position.longitude],
@@ -141,6 +156,7 @@ export default function ISSMap() {
 
   if (location) {
     mapMarkers.push({
+      id: "user",
       icon: USER_SVG,
       iconAnchor: MARKER_ANCHOR,
       position: [location.latitude, location.longitude],
@@ -164,14 +180,6 @@ export default function ISSMap() {
       radius: VISIBILITY_RADIUS_KM * 1000,
     },
   ];
-
-  const LIMIT_MAP_TO_WORLD = `
-  L.Map.mergeOptions({
-    maxBounds: L.latLngBounds([[-85, -Infinity], [85, Infinity]]),
-    maxBoundsViscosity: 1,
-  });
-  true;
-`;
 
   return (
     <View style={s.root}>
@@ -238,7 +246,7 @@ export default function ISSMap() {
               }
             : null
         }
-        injectedJavaScript={LIMIT_MAP_TO_WORLD}
+        injectedJavaScript={MAP_SETUP_JS}
         zoom={zoom}
         onMessageReceived={handleMapMessage}
         zoomControl={false}
