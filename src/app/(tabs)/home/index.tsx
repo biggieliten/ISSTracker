@@ -8,10 +8,11 @@ import {
   LetterSpacing,
   LineHeight,
   Radius,
+  Spacing,
 } from "@/constants/theme";
 import { useTheme } from "@/hooks/useTheme";
 import { useQuery } from "@tanstack/react-query";
-import { Orbit } from "lucide-react-native";
+import { CloudOff, Orbit } from "lucide-react-native";
 import { Fragment } from "react";
 import {
   ActivityIndicator,
@@ -47,11 +48,34 @@ export default function HomeScreen() {
 
   if (!data) {
     return (
-      <View style={[s.pending, { backgroundColor: colors.background }]}>
-        <Text style={{ color: colors.text }}>Could not load astronauts.</Text>
-        <Pressable onPress={() => refetch()}>
-          <Text>Try again</Text>
-        </Pressable>
+      <View style={[s.errorRoot, { backgroundColor: colors.background }]}>
+        <View
+          style={[
+            s.errorCard,
+            { backgroundColor: colors.surface, borderColor: colors.border },
+          ]}
+        >
+          <View style={[s.errorIcon, { backgroundColor: colors.primaryMuted }]}>
+            <CloudOff size={IconSize.md} color={colors.primary} />
+          </View>
+          <Text style={[s.errorTitle, { color: colors.text }]}>
+            Could not load astronauts
+          </Text>
+          <Text style={[s.errorBody, { color: colors.textSecondary }]}>
+            Check your connection and try again.
+          </Text>
+          <Pressable
+            onPress={() => refetch()}
+            style={({ pressed }) => [
+              s.retryButton,
+              { backgroundColor: colors.primary, opacity: pressed ? 0.8 : 1 },
+            ]}
+          >
+            <Text style={[s.retryLabel, { color: colors.onPrimary }]}>
+              Try again
+            </Text>
+          </Pressable>
+        </View>
       </View>
     );
   }
@@ -119,6 +143,49 @@ const s = StyleSheet.create({
   pending: {
     flex: 1,
     paddingTop: 20,
+  },
+  errorRoot: {
+    flex: 1,
+    justifyContent: "center",
+    padding: Spacing.three,
+  },
+  errorCard: {
+    alignItems: "center",
+    gap: Spacing.two,
+    padding: Spacing.four,
+    borderRadius: Radius.lg,
+    borderWidth: BorderWidth.thin,
+  },
+  errorIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: Radius.full,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: Spacing.one,
+  },
+  errorTitle: {
+    fontSize: FontSize.lg,
+    fontWeight: FontWeight.bold,
+    textAlign: "center",
+  },
+  errorBody: {
+    fontSize: FontSize.md,
+    lineHeight: LineHeight.body,
+    textAlign: "center",
+  },
+  retryButton: {
+    minWidth: 140,
+    minHeight: 44,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: Spacing.two,
+    paddingHorizontal: Spacing.four,
+    borderRadius: Radius.full,
+  },
+  retryLabel: {
+    fontSize: FontSize.base,
+    fontWeight: FontWeight.semibold,
   },
   countCard: {
     flexDirection: "row",
